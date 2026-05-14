@@ -13,10 +13,16 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.UnsupportedJwtException;
+import io.jsonwebtoken.security.SecurityException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
@@ -54,8 +60,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     SecurityContextHolder.getContext().setAuthentication(authToken);
                 }
             }
-        } catch (Exception e) {
-            // Token inválido — continúa sin autenticar
+        } catch (ExpiredJwtException e) {
+            log.warn("JWT expirado para la request {}: {}", request.getRequestURI(),
+                    e.getMessage());
+        } catch (UnsupportedJwtException | MalformedJwtException e) {
+            log.warn("JWT malformado o no soportado: {}", e.getMessage());
+        } catch (SecurityException e) {
+            log.warn("Firma JWT inválida: {}", e.getMessage());
+        } catch (IllegalArgumentException e) {
+            log.warn("JWT vacío o nulo: {}", e.getMessage());
         }
 
         filterChain.doFilter(request, response);
