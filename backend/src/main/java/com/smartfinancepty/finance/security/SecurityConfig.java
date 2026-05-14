@@ -23,9 +23,9 @@ public class SecurityConfig {
     private final AuthenticationProvider authenticationProvider;
     private static final String BASE_URL = "/api/v1";
 
-    private static final String[] PUBLIC_ENDPOINTS =
-            {BASE_URL + "/auth/login", BASE_URL + "/auth/register", BASE_URL + "/auth/refresh",
-                    "/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**", "/graphql"};
+    private static final String[] PUBLIC_ENDPOINTS = {BASE_URL + "/auth/login",
+            BASE_URL + "/auth/register", BASE_URL + "/auth/refresh", "/swagger-ui/**",
+            "/swagger-ui.html", "/v3/api-docs/**", "/v3/api-docs", "/graphql"};
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {

@@ -29,9 +29,9 @@ public class User implements UserDetails {
     private String password;
 
     @Column(nullable = false)
-    private String username;
+    private String username; // ← campo real en DB
 
-    @Column(nullable = false)
+    @Column(name = "full_name", nullable = false)
     private String fullName;
 
     @Enumerated(EnumType.STRING)
@@ -42,15 +42,26 @@ public class User implements UserDetails {
     @Builder.Default
     private boolean enabled = true;
 
-    @Column(nullable = false, updatable = false)
+    @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    private LocalDateTime upDateTime;
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt; // ← corregido de upDateTime
 
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
-        upDateTime = LocalDateTime.now();
+        updatedAt = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = LocalDateTime.now(); // ← faltaba esto
+    }
+
+    @Override
+    public String getUsername() {
+        return username; // ← retorna el campo, no email
     }
 
     @Override
@@ -75,6 +86,6 @@ public class User implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return enabled;
     }
 }
