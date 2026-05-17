@@ -48,7 +48,8 @@ public class Income {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    @OneToMany(mappedBy = "income", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "income", cascade = CascadeType.ALL, orphanRemoval = true,
+            fetch = FetchType.LAZY)
     @Builder.Default
     private List<Deduction> deductions = new ArrayList<>();
 
