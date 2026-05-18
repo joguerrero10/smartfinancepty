@@ -25,8 +25,8 @@ public class IncomeService {
     private final UserRepository userRepository;
 
     public List<IncomeResponse> getAllIncomes(Long userId) {
-        return incomeRepository.findByUserIdAndActiveTrue(userId).stream().map(this::toResponse)
-                .toList();
+        return incomeRepository.findByUserIdAndActiveTrueWithDeductions(userId).stream()
+                .map(this::toResponse).toList();
     }
 
     public IncomeResponse getIncomeById(Long id, Long userId) {

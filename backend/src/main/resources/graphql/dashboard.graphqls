@@ -1,0 +1,57 @@
+scalar BigDecimal
+scalar Date
+scalar DateTime
+
+type Query {
+  dashboard: DashboardResponse
+  dashboardByMonth(year: Int!, month: Int!): DashboardResponse
+}
+
+type DashboardResponse {
+  totalGrossIncome: BigDecimal!
+  totalNetIncome: BigDecimal!
+  totalDeductions: BigDecimal!
+  totalExpensesMonth: BigDecimal!
+  totalFixedExpenses: BigDecimal!
+  totalVariableExpenses: BigDecimal!
+  balance: BigDecimal!
+  savingsProjected: BigDecimal!
+  savingsPercentage: Float!
+  month: Int!
+  year: Int!
+  incomeCount: Int!
+  expenseCount: Int!
+  expensesByCategory: [CategorySummary!]!
+  recentExpenses: [RecentExpense!]!
+  incomes: [IncomeSummary!]!
+}
+
+type CategorySummary {
+  categoryId: ID!
+  categoryName: String!
+  totalAmount: BigDecimal!
+  percentage: Float!
+  expenseCount: Int!
+  color: String
+  icon: String
+}
+
+type RecentExpense {
+  id: ID!
+  description: String!
+  amount: BigDecimal!
+  categoryName: String!
+  subCategoryName: String
+  expenseType: String!
+  expenseDate: Date!
+}
+
+type IncomeSummary {
+  id: ID!
+  name: String!
+  incomeType: String!
+  grossAmount: BigDecimal!
+  netAmount: BigDecimal!
+  totalDeductions: BigDecimal!
+  frequency: String!
+}

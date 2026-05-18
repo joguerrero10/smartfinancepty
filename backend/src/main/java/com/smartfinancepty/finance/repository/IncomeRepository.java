@@ -9,7 +9,8 @@ import com.smartfinancepty.finance.domain.Income;
 
 @Repository
 public interface IncomeRepository extends JpaRepository<Income, Long> {
-    List<Income> findByUserIdAndActiveTrue(Long userId);
+    @Query("SELECT i FROM Income i LEFT JOIN FETCH i.deductions WHERE i.user.id = :userId AND i.active = true")
+    List<Income> findByUserIdAndActiveTrueWithDeductions(Long userId);
 
     Optional<Income> findByIdAndUserId(Long id, Long userId);
 
