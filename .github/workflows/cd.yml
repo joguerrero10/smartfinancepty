@@ -59,62 +59,62 @@ jobs:
           cache-to: type=gha,mode=max
 
   # ── Deploy a servidor ─────────────────────────────────────────────────────────
-  deploy:
-    name: Deploy to Production
-    runs-on: ubuntu-latest
-    needs: build-and-push
-    environment: production
+  # deploy:
+  #   name: Deploy to Production
+  #   runs-on: ubuntu-latest
+  #   needs: build-and-push
+  #   environment: production
 
-    steps:
-      - name: Checkout código
-        uses: actions/checkout@v4
+  #   steps:
+  #     - name: Checkout código
+  #       uses: actions/checkout@v4
 
-      - name: Deploy via SSH
-        uses: appleboy/ssh-action@v1
-        with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SERVER_SSH_KEY }}
-          port: ${{ secrets.SERVER_PORT || 22 }}
-          script: |
-            # Navegar al directorio del proyecto
-            cd /opt/smartfinancepty
+  #     - name: Deploy via SSH
+  #       uses: appleboy/ssh-action@v1
+  #       with:
+  #         host: ${{ secrets.SERVER_HOST }}
+  #         username: ${{ secrets.SERVER_USER }}
+  #         key: ${{ secrets.SERVER_SSH_KEY }}
+  #         port: ${{ secrets.SERVER_PORT || 22 }}
+  #         script: |
+  #           # Navegar al directorio del proyecto
+  #           cd /opt/smartfinancepty
 
-            # Login al registry
-            echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+  #           # Login al registry
+  #           echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
-            # Pull de la nueva imagen
-            docker compose pull backend
+  #           # Pull de la nueva imagen
+  #           docker compose pull backend
 
-            # Recrear solo el backend (zero-downtime si hay múltiples réplicas)
-            docker compose up -d --no-deps --build backend
+  #           # Recrear solo el backend (zero-downtime si hay múltiples réplicas)
+  #           docker compose up -d --no-deps --build backend
 
-            # Verificar que el health check pase
-            sleep 30
-            docker compose ps backend
+  #           # Verificar que el health check pase
+  #           sleep 30
+  #           docker compose ps backend
 
-            # Limpiar imágenes viejas
-            docker image prune -f
+  #           # Limpiar imágenes viejas
+  #           docker image prune -f
 
-      - name: Verificar deployment
-        uses: appleboy/ssh-action@v1
-        with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SERVER_SSH_KEY }}
-          script: |
-            response=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8080/actuator/health)
-            if [ "$response" = "200" ]; then
-              echo "✅ Deploy exitoso - Backend respondiendo"
-            else
-              echo "❌ Deploy fallido - Health check retornó $response"
-              docker compose logs backend --tail=50
-              exit 1
-            fi
+  #     - name: Verificar deployment
+  #       uses: appleboy/ssh-action@v1
+  #       with:
+  #         host: ${{ secrets.SERVER_HOST }}
+  #         username: ${{ secrets.SERVER_USER }}
+  #         key: ${{ secrets.SERVER_SSH_KEY }}
+  #         script: |
+  #           response=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8080/actuator/health)
+  #           if [ "$response" = "200" ]; then
+  #             echo "✅ Deploy exitoso - Backend respondiendo"
+  #           else
+  #             echo "❌ Deploy fallido - Health check retornó $response"
+  #             docker compose logs backend --tail=50
+  #             exit 1
+  #           fi
 
-      - name: Notificar éxito
-        if: success()
-        run: |
-          echo "🚀 Deploy exitoso a producción"
-          echo "Imagen: ${{ needs.build-and-push.outputs.image-tag }}"
-          echo "Commit: ${{ github.sha }}"
+  #     - name: Notificar éxito
+  #       if: success()
+  #       run: |
+  #         echo "🚀 Deploy exitoso a producción"
+  #         echo "Imagen: ${{ needs.build-and-push.outputs.image-tag }}"
+  #         echo "Commit: ${{ github.sha }}"
