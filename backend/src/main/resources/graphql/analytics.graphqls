@@ -1,0 +1,78 @@
+extend type Query {
+  analytics(year: Int!, month: Int!): AnalyticsResponse
+  analyticsComparison(year: Int!, month: Int!): ComparisonResponse
+  recommendations: [Recommendation!]!
+}
+
+type AnalyticsResponse {
+  year: Int!
+  month: Int!
+  totalExpenses: BigDecimal!
+  totalIncome: BigDecimal!
+  savingsRate: Float!
+  topCategories: [CategoryAnalytic!]!
+  expenseTrend: [TrendPoint!]!
+  prediction: PredictionResult!
+  riskLevel: String!
+  riskMessage: String
+}
+
+type CategoryAnalytic {
+  categoryName: String!
+  totalAmount: BigDecimal!
+  percentage: Float!
+  trend: String!
+  trendPercentage: Float!
+  expenseCount: Int!
+}
+
+type TrendPoint {
+  label: String!
+  amount: BigDecimal!
+  month: Int!
+  year: Int!
+}
+
+type ComparisonResponse {
+  currentMonth: MonthSummary!
+  previousMonth: MonthSummary!
+  expenseDifference: BigDecimal!
+  expenseChangePercentage: Float!
+  increased: Boolean!
+  categoriesIncreased: [CategoryChange!]!
+  categoriesDecreased: [CategoryChange!]!
+}
+
+type MonthSummary {
+  year: Int!
+  month: Int!
+  totalExpenses: BigDecimal!
+  totalIncome: BigDecimal!
+  balance: BigDecimal!
+}
+
+type CategoryChange {
+  categoryName: String!
+  previousAmount: BigDecimal!
+  currentAmount: BigDecimal!
+  changePercentage: Float!
+  changeAmount: BigDecimal!
+}
+
+type PredictionResult {
+  predictedExpenses: BigDecimal!
+  predictedSavings: BigDecimal!
+  confidenceLevel: String!
+  basedOnMonths: Int!
+}
+
+type Recommendation {
+  id: String!
+  type: String!
+  title: String!
+  message: String!
+  priority: String!
+  potentialSavings: BigDecimal
+  categoryName: String
+  actionable: Boolean!
+}
