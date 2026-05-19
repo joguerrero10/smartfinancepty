@@ -37,6 +37,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         final String jwt;
         final String userEmail;
 
+        String path = request.getServletPath();
+
+        // Excluir Swagger/OpenAPI
+        if (path.startsWith("/swagger-ui") || path.startsWith("/v3/api-docs")
+                || path.equals("/swagger-ui.html")) {
+
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
             return;

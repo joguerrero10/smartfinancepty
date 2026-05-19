@@ -49,8 +49,15 @@ application:
 springdoc:
   api-docs:
     path: /v3/api-docs
+
   swagger-ui:
     path: /swagger-ui.html
-
+    operations-sorter: alpha
+    tags-sorter: alpha
+    display-request-duration: true
+    filter: true
+    try-it-out-enabled: true
+    default-models-expand-depth: 1
+  show-actuator: false
 server:
   port: 8080
