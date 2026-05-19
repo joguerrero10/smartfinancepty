@@ -17,11 +17,14 @@ import com.smartfinancepty.finance.dto.AuthResponse;
 import com.smartfinancepty.finance.dto.LoginRequest;
 import com.smartfinancepty.finance.dto.RefreshTokenRequest;
 import com.smartfinancepty.finance.dto.RegisterRequest;
+import com.smartfinancepty.finance.repository.RefreshTokenRepository;
+import com.smartfinancepty.finance.repository.UserRepository;
 
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @DisplayName("Auth Integration Tests")
 class AuthIntegrationTest {
 
@@ -29,9 +32,21 @@ class AuthIntegrationTest {
     private MockMvc mockMvc;
     @Autowired
     private ObjectMapper objectMapper;
+    @Autowired
+    private UserRepository userRepository;
+    @Autowired
+    private RefreshTokenRepository refreshTokenRepository;
 
-    private static String accessToken;
-    private static String refreshToken;
+    private String accessToken;
+    private String refreshToken;
+
+    @BeforeAll
+    void cleanTestData() {
+        userRepository.findByEmail("integration@smartfinance.com").ifPresent(user -> {
+            refreshTokenRepository.deleteByUser(user);
+            userRepository.delete(user);
+        });
+    }
 
     @Test
     @Order(1)

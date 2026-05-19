@@ -22,6 +22,7 @@ import com.smartfinancepty.finance.dto.AuthResponse;
 import com.smartfinancepty.finance.dto.LoginRequest;
 import com.smartfinancepty.finance.dto.RegisterRequest;
 import com.smartfinancepty.finance.exception.EmailAlreadyExistsException;
+import com.smartfinancepty.finance.security.JwtService;
 import com.smartfinancepty.finance.service.auth.AuthService;
 
 @WebMvcTest(AuthController.class)
@@ -35,6 +36,8 @@ class AuthControllerTest {
     private ObjectMapper objectMapper;
     @MockitoBean
     private AuthService authService;
+    @MockitoBean
+    private JwtService jwtService;
 
     private AuthResponse mockAuthResponse;
 

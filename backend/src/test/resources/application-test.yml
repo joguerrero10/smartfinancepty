@@ -21,7 +21,7 @@ spring:
 application:
   security:
     jwt:
-      secret-key: test_secret_key_for_ci_minimum_256_bits_long_string_here
+      secret-key: dGVzdFNlY3JldEtleUZvckpVbml0VGVzdHMyNTZiaXRz
       expiration: 86400000
       refresh-token:
         expiration: 604800000
