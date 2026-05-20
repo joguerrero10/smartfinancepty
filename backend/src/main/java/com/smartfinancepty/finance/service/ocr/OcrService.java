@@ -202,9 +202,13 @@ public class OcrService {
     }
 
     private void validateImageFile(String contentType) {
-        // Si contentType es null, intentar continuar en vez de rechazar
-        if (contentType == null || contentType.equals("application/octet-stream")) {
-            return; // Tesseract intentará procesarlo igual
+        if (contentType == null) {
+            throw new IllegalArgumentException(
+                    "Tipo de archivo desconocido. OCR solo soporta JPG, PNG, TIFF y PDF.");
+        }
+
+        if (contentType.equals("application/octet-stream")) {
+            return;
         }
 
         List<String> supported =
