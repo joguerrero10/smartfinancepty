@@ -14,6 +14,14 @@ RUN mvn clean package -DskipTests -B
 # ── Stage 2: Runtime ─────────────────────────────────────────────────────────
 FROM eclipse-temurin:21-jre-alpine
 
+# # Instalar Tesseract y datos de idiomas
+RUN apk add --no-cache \
+    tesseract-ocr \
+    tesseract-ocr-data-spa \
+    tesseract-ocr-data-eng \
+    ghostscript \
+    && rm -rf /var/cache/apk/*
+
 WORKDIR /app
 
 # Crear usuario no-root por seguridad
@@ -28,6 +36,15 @@ RUN chown smartfinance:smartfinance app.jar
 USER smartfinance
 
 EXPOSE 8080
+
+FROM eclipse-temurin:21-jre-jammy
+RUN apt-get update && apt-get install -y \
+    tesseract-ocr \
+    tesseract-ocr-spa \
+    tesseract-ocr-eng \
+    ghostscript \
+    && rm -rf /var/lib/apt/lists/*
+
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \

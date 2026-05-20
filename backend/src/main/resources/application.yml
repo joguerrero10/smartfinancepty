@@ -38,6 +38,12 @@ app:
     local:
       path: uploads
       base-url: http://localhost:8080/files
+  ocr:
+    tessdata-path: /usr/share/tesseract-ocr/5/tessdata # Linux
+    # tessdata-path: /usr/local/share/tessdata          # Mac (Homebrew)
+    # tessdata-path: C:/Program Files/Tesseract-OCR/tessdata  # Windows
+    language: spa+eng # español + inglés
+    dpi: 300 # resolución para mejor precisión
 
 application:
   security:

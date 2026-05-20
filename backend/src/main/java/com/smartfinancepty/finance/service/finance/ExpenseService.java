@@ -97,6 +97,12 @@ public class ExpenseService {
         expenseRepository.save(expense);
     }
 
+    @Transactional(readOnly = true)
+    public Expense getExpenseEntity(Long id, Long userId) {
+        return expenseRepository.findByIdAndUserId(id, userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Gasto no encontrado"));
+    }
+
     private ExpenseResponse toResponse(Expense expense) {
         return ExpenseResponse.builder().id(expense.getId()).description(expense.getDescription())
                 .amount(expense.getAmount()).expenseType(expense.getExpenseType())
