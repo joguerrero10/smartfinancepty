@@ -40,6 +40,16 @@ application:
       expiration: 86400000
       refresh-token:
         expiration: 604800000
+    cors:
+      allowed-origins: >
+        https://smartfinance.com,
+        https://app.smartfinance.com,
+        capacitor://localhost,
+        ionic://localhost
+    rate-limit:
+      enabled: true
+      requests-per-minute: 100
+      auth-requests-per-minute: 5
 
 server:
   port: 8080
