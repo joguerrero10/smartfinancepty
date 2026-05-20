@@ -1,11 +1,13 @@
 package com.smartfinancepty.finance.controllers.expenses;
 
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
@@ -14,7 +16,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -30,7 +31,6 @@ import com.smartfinancepty.finance.security.JwtService;
 import com.smartfinancepty.finance.service.finance.ExpenseService;
 
 @WebMvcTest(ExpensesController.class)
-@AutoConfigureMockMvc(addFilters = false)
 @DisplayName("ExpensesController Tests")
 class ExpensesControllerTest {
 
@@ -60,7 +60,8 @@ class ExpensesControllerTest {
 
         expense2 = ExpenseResponse.builder().id(2L).description("Alquiler")
                 .amount(new BigDecimal("800.00")).expenseType(ExpenseType.FIXED)
-                .categoryName("Vivienda").expenseDate(LocalDate.of(2026, 5, 1)).active(true).build();
+                .categoryName("Vivienda").expenseDate(LocalDate.of(2026, 5, 1)).active(true)
+                .build();
 
         validRequest = ExpenseRequest.builder().description("Supermercado")
                 .amount(new BigDecimal("150.00")).categoryId(1L).expenseType(ExpenseType.VARIABLE)
@@ -76,8 +77,8 @@ class ExpensesControllerTest {
         void shouldReturn200WithExpenseList() throws Exception {
             when(expenseService.getAllExpenses(1L)).thenReturn(List.of(expense1, expense2));
 
-            mockMvc.perform(get("/api/v1/expenses").with(user(testUser)))
-                    .andExpect(status().isOk()).andExpect(jsonPath("$.length()").value(2))
+            mockMvc.perform(get("/api/v1/expenses").with(user(testUser))).andExpect(status().isOk())
+                    .andExpect(jsonPath("$.length()").value(2))
                     .andExpect(jsonPath("$[0].id").value(1L))
                     .andExpect(jsonPath("$[0].description").value("Supermercado"))
                     .andExpect(jsonPath("$[1].id").value(2L));
@@ -88,8 +89,8 @@ class ExpensesControllerTest {
         void shouldReturnEmptyListWhenNoExpenses() throws Exception {
             when(expenseService.getAllExpenses(1L)).thenReturn(List.of());
 
-            mockMvc.perform(get("/api/v1/expenses").with(user(testUser)))
-                    .andExpect(status().isOk()).andExpect(jsonPath("$.length()").value(0));
+            mockMvc.perform(get("/api/v1/expenses").with(user(testUser))).andExpect(status().isOk())
+                    .andExpect(jsonPath("$.length()").value(0));
         }
     }
 

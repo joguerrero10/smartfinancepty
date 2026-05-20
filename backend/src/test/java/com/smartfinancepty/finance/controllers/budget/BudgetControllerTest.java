@@ -5,7 +5,8 @@ import static org.mockito.Mockito.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import java.math.BigDecimal;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
@@ -13,7 +14,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -28,7 +28,6 @@ import com.smartfinancepty.finance.security.JwtService;
 import com.smartfinancepty.finance.service.finance.BudgetService;
 
 @WebMvcTest(BudgetController.class)
-@AutoConfigureMockMvc(addFilters = false)
 @DisplayName("BudgetController Tests")
 class BudgetControllerTest {
 
@@ -52,8 +51,8 @@ class BudgetControllerTest {
 
         budget1 = BudgetResponse.builder().id(1L).categoryName("Alimentación")
                 .limitAmount(new BigDecimal("500.00")).spentAmount(new BigDecimal("320.00"))
-                .remainingAmount(new BigDecimal("180.00")).usagePercentage(64.0)
-                .isOverBudget(false).isNearLimit(false).year(2026).month(5).build();
+                .remainingAmount(new BigDecimal("180.00")).usagePercentage(64.0).isOverBudget(false)
+                .isNearLimit(false).year(2026).month(5).build();
 
         validRequest = BudgetRequest.builder().categoryId(1L).limitAmount(new BigDecimal("500.00"))
                 .year(2026).month(5).build();
@@ -69,8 +68,8 @@ class BudgetControllerTest {
             when(budgetService.getBudgetsByMonth(eq(1L), anyInt(), anyInt()))
                     .thenReturn(List.of(budget1));
 
-            mockMvc.perform(get("/api/v1/budgets").with(user(testUser)))
-                    .andExpect(status().isOk()).andExpect(jsonPath("$.length()").value(1))
+            mockMvc.perform(get("/api/v1/budgets").with(user(testUser))).andExpect(status().isOk())
+                    .andExpect(jsonPath("$.length()").value(1))
                     .andExpect(jsonPath("$[0].id").value(1L))
                     .andExpect(jsonPath("$[0].categoryName").value("Alimentación"));
         }
@@ -78,11 +77,10 @@ class BudgetControllerTest {
         @Test
         @DisplayName("Debe retornar lista vacía cuando no hay presupuestos")
         void shouldReturnEmptyList() throws Exception {
-            when(budgetService.getBudgetsByMonth(eq(1L), anyInt(), anyInt()))
-                    .thenReturn(List.of());
+            when(budgetService.getBudgetsByMonth(eq(1L), anyInt(), anyInt())).thenReturn(List.of());
 
-            mockMvc.perform(get("/api/v1/budgets").with(user(testUser)))
-                    .andExpect(status().isOk()).andExpect(jsonPath("$.length()").value(0));
+            mockMvc.perform(get("/api/v1/budgets").with(user(testUser))).andExpect(status().isOk())
+                    .andExpect(jsonPath("$.length()").value(0));
         }
     }
 
@@ -145,9 +143,8 @@ class BudgetControllerTest {
         @Test
         @DisplayName("Debe retornar 400 si el monto límite es nulo")
         void shouldReturn400WhenLimitAmountIsNull() throws Exception {
-            BudgetRequest invalid =
-                    BudgetRequest.builder().categoryId(1L).limitAmount(null).year(2026).month(5)
-                            .build();
+            BudgetRequest invalid = BudgetRequest.builder().categoryId(1L).limitAmount(null)
+                    .year(2026).month(5).build();
 
             mockMvc.perform(post("/api/v1/budgets").with(csrf()).with(user(testUser))
                     .contentType(MediaType.APPLICATION_JSON)
@@ -186,8 +183,7 @@ class BudgetControllerTest {
             mockMvc.perform(put("/api/v1/budgets/1").with(csrf()).with(user(testUser))
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(validRequest)))
-                    .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.limitAmount").value(600.00));
+                    .andExpect(status().isOk()).andExpect(jsonPath("$.limitAmount").value(600.00));
         }
     }
 

@@ -1,11 +1,13 @@
 package com.smartfinancepty.finance.controllers.savinggoals;
 
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import java.math.BigDecimal;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
@@ -13,7 +15,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -28,7 +29,6 @@ import com.smartfinancepty.finance.security.JwtService;
 import com.smartfinancepty.finance.service.finance.SavingsGoalService;
 
 @WebMvcTest(SavingsGoalController.class)
-@AutoConfigureMockMvc(addFilters = false)
 @DisplayName("SavingsGoalController Tests")
 class SavingsGoalControllerTest {
 
@@ -145,9 +145,8 @@ class SavingsGoalControllerTest {
         @Test
         @DisplayName("Debe retornar 400 si el nombre está vacío")
         void shouldReturn400WhenNameIsBlank() throws Exception {
-            SavingsGoalRequest invalid =
-                    SavingsGoalRequest.builder().name("").fixedAmount(new BigDecimal("300.00"))
-                            .build();
+            SavingsGoalRequest invalid = SavingsGoalRequest.builder().name("")
+                    .fixedAmount(new BigDecimal("300.00")).build();
 
             mockMvc.perform(post("/api/v1/savings-goals").with(csrf()).with(user(testUser))
                     .contentType(MediaType.APPLICATION_JSON)
@@ -165,9 +164,9 @@ class SavingsGoalControllerTest {
         @Test
         @DisplayName("Debe retornar 200 con meta actualizada")
         void shouldReturn200OnUpdate() throws Exception {
-            SavingsGoalResponse updated = SavingsGoalResponse.builder().id(1L)
-                    .name("Fondo de emergencia actualizado")
-                    .fixedAmount(new BigDecimal("500.00")).build();
+            SavingsGoalResponse updated =
+                    SavingsGoalResponse.builder().id(1L).name("Fondo de emergencia actualizado")
+                            .fixedAmount(new BigDecimal("500.00")).build();
 
             when(savingsGoalService.updateGoal(eq(1L), any(SavingsGoalRequest.class), eq(1L)))
                     .thenReturn(updated);

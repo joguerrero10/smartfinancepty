@@ -1,11 +1,13 @@
 package com.smartfinancepty.finance.controllers.income;
 
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import java.math.BigDecimal;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
@@ -13,7 +15,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -30,7 +31,6 @@ import com.smartfinancepty.finance.security.JwtService;
 import com.smartfinancepty.finance.service.finance.IncomeService;
 
 @WebMvcTest(IncomeController.class)
-@AutoConfigureMockMvc(addFilters = false)
 @DisplayName("IncomeController Tests")
 class IncomeControllerTest {
 
@@ -57,9 +57,9 @@ class IncomeControllerTest {
                 .totalDeductions(new BigDecimal("300.00")).frequency(FrequencyType.MONTHLY)
                 .incomeType(IncomeType.SALARY).active(true).build();
 
-        validRequest = IncomeRequest.builder().name("Salario mensual")
-                .amount(new BigDecimal("2000.00")).frequency(FrequencyType.MONTHLY)
-                .incomeType(IncomeType.SALARY).build();
+        validRequest =
+                IncomeRequest.builder().name("Salario mensual").amount(new BigDecimal("2000.00"))
+                        .frequency(FrequencyType.MONTHLY).incomeType(IncomeType.SALARY).build();
     }
 
     @Nested
@@ -71,8 +71,8 @@ class IncomeControllerTest {
         void shouldReturn200WithIncomeList() throws Exception {
             when(incomeService.getAllIncomes(1L)).thenReturn(List.of(income1));
 
-            mockMvc.perform(get("/api/v1/incomes").with(user(testUser)))
-                    .andExpect(status().isOk()).andExpect(jsonPath("$.length()").value(1))
+            mockMvc.perform(get("/api/v1/incomes").with(user(testUser))).andExpect(status().isOk())
+                    .andExpect(jsonPath("$.length()").value(1))
                     .andExpect(jsonPath("$[0].id").value(1L))
                     .andExpect(jsonPath("$[0].name").value("Salario mensual"));
         }
@@ -82,8 +82,8 @@ class IncomeControllerTest {
         void shouldReturnEmptyList() throws Exception {
             when(incomeService.getAllIncomes(1L)).thenReturn(List.of());
 
-            mockMvc.perform(get("/api/v1/incomes").with(user(testUser)))
-                    .andExpect(status().isOk()).andExpect(jsonPath("$.length()").value(0));
+            mockMvc.perform(get("/api/v1/incomes").with(user(testUser))).andExpect(status().isOk())
+                    .andExpect(jsonPath("$.length()").value(0));
         }
     }
 
@@ -132,8 +132,9 @@ class IncomeControllerTest {
         @Test
         @DisplayName("Debe retornar 400 si el nombre está vacío")
         void shouldReturn400WhenNameIsBlank() throws Exception {
-            IncomeRequest invalid = IncomeRequest.builder().name("").amount(new BigDecimal("1000.00"))
-                    .frequency(FrequencyType.MONTHLY).incomeType(IncomeType.SALARY).build();
+            IncomeRequest invalid =
+                    IncomeRequest.builder().name("").amount(new BigDecimal("1000.00"))
+                            .frequency(FrequencyType.MONTHLY).incomeType(IncomeType.SALARY).build();
 
             mockMvc.perform(post("/api/v1/incomes").with(csrf()).with(user(testUser))
                     .contentType(MediaType.APPLICATION_JSON)
