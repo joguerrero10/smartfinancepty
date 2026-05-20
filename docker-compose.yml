@@ -52,6 +52,9 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+      kafka:
+        condition: service_healthy
+
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-smartfinance_db}
       SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-smartfinance}
@@ -61,6 +64,7 @@ services:
       SPRING_REDIS_PASSWORD: ${REDIS_PASSWORD:-redis123}
       JWT_SECRET: ${JWT_SECRET:-404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970}
       SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-prod}
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:29092
     ports:
       - '8080:8080'
     healthcheck:
@@ -74,6 +78,35 @@ services:
     labels:
       - 'traefik.enable=true'
       - 'traefik.http.routers.backend.rule=Host(`api.smartfinance.com`)'
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.6.0
+    container_name: smartfinance_zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+    networks:
+      - smartfinance_network
+  kafka:
+    image: confluentinc/cp-kafka:7.6.0
+    container_name: smartfinance_kafka
+    depends_on:
+      - zookeeper
+    ports:
+      - '9092:9092'
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
+    networks:
+      - smartfinance_network
+    healthcheck:
+      test: ['CMD', 'kafka-topics', '--bootstrap-server', 'localhost:9092', '--list']
+      interval: 30s
+      timeout: 10s
+      retries: 5
 
 volumes:
   postgres_data:

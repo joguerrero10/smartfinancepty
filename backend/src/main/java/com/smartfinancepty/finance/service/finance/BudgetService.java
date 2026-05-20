@@ -13,6 +13,8 @@ import com.smartfinancepty.finance.domain.User;
 import com.smartfinancepty.finance.dto.BudgetRequest;
 import com.smartfinancepty.finance.dto.BudgetResponse;
 import com.smartfinancepty.finance.exception.ResourceNotFoundException;
+import com.smartfinancepty.finance.infrastructure.kafka.event.BudgetAlertEvent;
+import com.smartfinancepty.finance.infrastructure.kafka.producer.FinanceEventProducer;
 import com.smartfinancepty.finance.repository.BudgetRepository;
 import com.smartfinancepty.finance.repository.ExpenseCategoryRepository;
 import com.smartfinancepty.finance.repository.ExpenseRepository;
@@ -29,6 +31,7 @@ public class BudgetService {
     private final UserRepository userRepository;
     private final ExpenseCategoryRepository categoryRepository;
     private final ExpenseRepository expenseRepository;
+    private final FinanceEventProducer eventProducer;
 
     @Transactional(readOnly = true)
     public List<BudgetResponse> getBudgetsByMonth(Long userId, int year, int month) {
@@ -137,6 +140,14 @@ public class BudgetService {
                             + (isGlobal ? "global" : "de " + budget.getCategory().getName())
                             + ". Solo quedan $"
                             + remaining.max(BigDecimal.ZERO).setScale(2, RoundingMode.HALF_UP);
+        }
+        if (isOverBudget || isNearLimit) {
+            eventProducer.publishBudgetAlert(BudgetAlertEvent.builder()
+                    .userId(budget.getUser().getId()).budgetId(budget.getId())
+                    .categoryName(isGlobal ? "Global" : budget.getCategory().getName())
+                    .isGlobal(isGlobal).limitAmount(budget.getLimitAmount()).spentAmount(spent)
+                    .usagePercentage(Math.round(usagePct * 100.0) / 100.0).exceeded(isOverBudget)
+                    .build());
         }
 
         return BudgetResponse.builder().id(budget.getId())

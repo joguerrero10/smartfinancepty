@@ -13,7 +13,7 @@ import org.springframework.web.multipart.MultipartFile;
 import lombok.extern.slf4j.Slf4j;
 
 @Service
-@Profile("!prod") // activo en dev y test, no en prod
+@Profile({"default", "dev", "test"}) // activo en dev y test, no en prod
 @Slf4j
 public class LocalStorageService implements StorageService {
 

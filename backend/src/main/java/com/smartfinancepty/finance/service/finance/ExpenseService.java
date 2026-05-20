@@ -2,12 +2,16 @@ package com.smartfinancepty.finance.service.finance;
 
 import java.time.LocalDate;
 import java.util.List;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.smartfinancepty.finance.domain.*;
 import com.smartfinancepty.finance.dto.ExpenseRequest;
 import com.smartfinancepty.finance.dto.ExpenseResponse;
 import com.smartfinancepty.finance.exception.ResourceNotFoundException;
+import com.smartfinancepty.finance.infrastructure.kafka.event.ExpenseCreatedEvent;
+import com.smartfinancepty.finance.infrastructure.kafka.event.ExpenseDeletedEvent;
+import com.smartfinancepty.finance.infrastructure.kafka.producer.FinanceEventProducer;
 import com.smartfinancepty.finance.repository.ExpenseCategoryRepository;
 import com.smartfinancepty.finance.repository.ExpenseRepository;
 import com.smartfinancepty.finance.repository.ExpenseSubCategoryRepository;
@@ -23,6 +27,10 @@ public class ExpenseService {
     private final UserRepository userRepository;
     private final ExpenseCategoryRepository categoryRepository;
     private final ExpenseSubCategoryRepository subCategoryRepository;
+
+    @Autowired
+    private FinanceEventProducer eventProducer;
+
 
     public List<ExpenseResponse> getAllExpenses(Long userId) {
         return expenseRepository.findByUserIdAndActiveTrue(userId).stream().map(this::toResponse)
@@ -66,7 +74,15 @@ public class ExpenseService {
                 .frequency(request.getFrequency()).dueDay(request.getDueDay())
                 .notes(request.getNotes()).active(true).build();
 
-        return toResponse(expenseRepository.save(expense));
+        Expense saved = expenseRepository.save(expense);
+
+        eventProducer.publishExpenseCreated(ExpenseCreatedEvent.builder().userId(userId)
+                .expenseId(saved.getId()).amount(saved.getAmount())
+                .categoryId(saved.getCategory().getId()).categoryName(saved.getCategory().getName())
+                .description(saved.getDescription()).expenseDate(saved.getExpenseDate())
+                .expenseType(saved.getExpenseType().name()).build());
+
+        return toResponse(saved);
     }
 
     @Transactional
@@ -95,6 +111,9 @@ public class ExpenseService {
                 .orElseThrow(() -> new ResourceNotFoundException("Gasto no encontrado"));
         expense.setActive(false);
         expenseRepository.save(expense);
+        eventProducer.publishExpenseDeleted(ExpenseDeletedEvent.builder().userId(userId)
+                .expenseId(expense.getId()).amount(expense.getAmount())
+                .categoryId(expense.getCategory().getId()).build());
     }
 
     @Transactional(readOnly = true)

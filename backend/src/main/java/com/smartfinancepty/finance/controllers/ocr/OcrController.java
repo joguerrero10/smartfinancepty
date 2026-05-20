@@ -1,5 +1,6 @@
 package com.smartfinancepty.finance.controllers.ocr;
 
+import java.util.Map;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -9,6 +10,8 @@ import com.smartfinancepty.finance.domain.User;
 import com.smartfinancepty.finance.dto.ExpenseResponse;
 import com.smartfinancepty.finance.dto.ocr.OcrConfirmRequest;
 import com.smartfinancepty.finance.dto.ocr.OcrResult;
+import com.smartfinancepty.finance.infrastructure.kafka.event.OcrRequestedEvent;
+import com.smartfinancepty.finance.infrastructure.kafka.producer.FinanceEventProducer;
 import com.smartfinancepty.finance.service.ocr.OcrService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -23,6 +26,7 @@ import lombok.RequiredArgsConstructor;
 public class OcrController {
 
     private final OcrService ocrService;
+    private final FinanceEventProducer eventProducer;
 
     @PostMapping(value = "/scan", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "Escanear factura en tiempo real",
@@ -34,6 +38,23 @@ public class OcrController {
             @AuthenticationPrincipal User user) {
         return ResponseEntity.ok(ocrService.processUploadedFile(file, autoCreate, categoryId,
                 expenseId, user.getId()));
+    }
+
+    @PostMapping("/scan-async")
+    @Operation(summary = "Escanear factura en background (Kafka)",
+            description = "Publica el OCR a Kafka y retorna inmediatamente. "
+                    + "El resultado llega via notificación push.")
+    public ResponseEntity<Map<String, String>> scanAsync(@RequestParam Long fileId,
+            @RequestParam(defaultValue = "false") boolean autoCreate,
+            @RequestParam(required = false) Long categoryId, @AuthenticationPrincipal User user) {
+
+        eventProducer.publishOcrRequested(OcrRequestedEvent.builder().userId(user.getId())
+                .fileAttachmentId(fileId).autoCreate(autoCreate).categoryId(categoryId).build());
+
+        return ResponseEntity.accepted()
+                .body(Map.of("message",
+                        "OCR en proceso. Recibirás una notificación cuando esté listo.", "fileId",
+                        fileId.toString()));
     }
 
     @PostMapping("/process/{fileId}")
