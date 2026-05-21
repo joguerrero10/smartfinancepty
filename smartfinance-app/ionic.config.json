@@ -1,0 +1,7 @@
+{
+  "name": "smartfinance-app",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular-standalone"
+}
