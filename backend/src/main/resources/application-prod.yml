@@ -27,11 +27,38 @@ spring:
 
   graphql:
     graphiql:
-      enabled: false # Desactivado en producción
+      enabled: false
     path: /graphql
     schema:
       locations: classpath:graphql/
       file-extensions: .graphqls
+
+  kafka:
+    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:kafka:29092}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      acks: all
+      retries: 3
+      properties:
+        enable.idempotence: true
+        spring.json.add.type.headers: false
+    consumer:
+      group-id: smartfinance-group
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      auto-offset-reset: earliest
+      enable-auto-commit: false
+      properties:
+        spring.json.trusted.packages: "com.smartfinancepty.finance.*"
+        spring.json.use.type.headers: false
+        spring.json.value.default.type: "java.util.Map"
+
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 8MB
+      max-request-size: 8MB
 
 application:
   security:
@@ -40,12 +67,35 @@ application:
       expiration: 86400000
       refresh-token:
         expiration: 604800000
+
+app:
+  upload:
+    max-size-mb: 8
+
+  storage:
+    local:
+      path: /app/uploads
+      base-url: ${APP_BASE_URL:https://api.smartfinance.com}/files
+    # ── S3 (activa con: SPRING_PROFILES_ACTIVE=prod,prod-s3)
+    s3:
+      bucket: ${AWS_S3_BUCKET:smartfinancepty-files}
+      region: ${AWS_REGION:us-east-1}
+    # ── Cloudinary (activa con: SPRING_PROFILES_ACTIVE=prod,prod-cloudinary)
+    cloudinary:
+      cloud-name: ${CLOUDINARY_CLOUD_NAME:}
+      api-key: ${CLOUDINARY_API_KEY:}
+      api-secret: ${CLOUDINARY_API_SECRET:}
+
+  ocr:
+    tessdata-path: ${OCR_TESSDATA_PATH:/usr/share/tesseract-ocr/5/tessdata}
+    language: spa+eng
+    dpi: 300
+
+  security:
     cors:
-      allowed-origins: >
-        https://smartfinance.com,
-        https://app.smartfinance.com,
-        capacitor://localhost,
-        ionic://localhost
+      allowed-origins: "https://smartfinance.com,https://app.smartfinance.com,capacitor://localhost,ionic://localhost"
+      allowed-methods: "GET,POST,PUT,PATCH,DELETE,OPTIONS"
+      max-age: 3600
     rate-limit:
       enabled: true
       requests-per-minute: 100
@@ -72,3 +122,10 @@ logging:
     root: WARN
     com.smartfinancepty: INFO
     org.springframework.security: WARN
+    org.springframework.kafka: WARN
+
+springdoc:
+  swagger-ui:
+    enabled: false
+  api-docs:
+    enabled: false
