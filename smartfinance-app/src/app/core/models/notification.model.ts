@@ -5,5 +5,7 @@ export interface Notification {
   type: string;
   channel: string;
   read: boolean;
+  referenceId?: number;
+  referenceType?: string;
   createdAt: string;
 }

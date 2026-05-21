@@ -9,3 +9,9 @@ export interface SavingsGoal {
   achievementPercentage: number;
   statusMessage: string;
 }
+
+export interface SavingsGoalRequest {
+  name: string;
+  fixedAmount?: number;
+  percentage?: number;
+}

@@ -1,0 +1,39 @@
+.login-content {
+  --background: var(--ion-color-light);
+}
+.logo-section {
+  text-align: center;
+  padding: 48px 0 32px;
+}
+.logo-icon {
+  font-size: 64px;
+  color: var(--ion-color-primary);
+}
+.logo-section h1 {
+  font-size: 28px;
+  font-weight: 700;
+  margin: 8px 0 4px;
+}
+.logo-section p {
+  color: var(--ion-color-medium);
+}
+.form-item {
+  margin-bottom: 8px;
+  border-radius: 8px;
+}
+.login-btn {
+  margin-top: 24px;
+  height: 48px;
+}
+.error-msg {
+  color: var(--ion-color-danger);
+  font-size: 12px;
+  padding: 4px 16px;
+}
+.footer-links {
+  text-align: center;
+  margin-top: 24px;
+}
+.footer-links a {
+  color: var(--ion-color-primary);
+}

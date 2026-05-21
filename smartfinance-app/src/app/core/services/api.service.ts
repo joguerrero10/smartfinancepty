@@ -5,138 +5,156 @@ import { environment } from '../../../environments/environment';
 import {
   AnalyticsData,
   Budget,
+  BudgetRequest,
   Expense,
+  ExpenseCategory,
   ExpenseRequest,
   FileAttachment,
   Income,
+  IncomeRequest,
   Notification,
   OcrResult,
   SavingsGoal,
+  SavingsGoalRequest,
 } from '../models';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Injectable({ providedIn: 'root' })
 export class ApiService {
-  private readonly BASE = `${environment.apiUrl}/api/v1`;
+  private readonly base = `${environment.apiUrl}/api/v1`;
 
   constructor(private readonly http: HttpClient) {}
 
   // ── Incomes ───────────────────────────────────────────────────────────────
 
   getIncomes(): Observable<Income[]> {
-    return this.http.get<Income[]>(`${this.BASE}/incomes`);
+    return this.http.get<Income[]>(`${this.base}/incomes`);
   }
 
-  createIncome(data: any): Observable<Income> {
-    return this.http.post<Income>(`${this.BASE}/incomes`, data);
+  getIncomeById(id: number): Observable<Income> {
+    return this.http.get<Income>(`${this.base}/incomes/${id}`);
   }
 
-  updateIncome(id: number, data: any): Observable<Income> {
-    return this.http.put<Income>(`${this.BASE}/incomes/${id}`, data);
+  createIncome(data: IncomeRequest): Observable<Income> {
+    return this.http.post<Income>(`${this.base}/incomes`, data);
+  }
+
+  updateIncome(id: number, data: IncomeRequest): Observable<Income> {
+    return this.http.put<Income>(`${this.base}/incomes/${id}`, data);
   }
 
   deleteIncome(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.BASE}/incomes/${id}`);
+    return this.http.delete<void>(`${this.base}/incomes/${id}`);
   }
 
   // ── Expenses ──────────────────────────────────────────────────────────────
 
   getExpenses(): Observable<Expense[]> {
-    return this.http.get<Expense[]>(`${this.BASE}/expenses`);
+    return this.http.get<Expense[]>(`${this.base}/expenses`);
   }
 
   getExpenseById(id: number): Observable<Expense> {
-    return this.http.get<Expense>(`${this.BASE}/expenses/${id}`);
+    return this.http.get<Expense>(`${this.base}/expenses/${id}`);
   }
 
   createExpense(data: ExpenseRequest): Observable<Expense> {
-    return this.http.post<Expense>(`${this.BASE}/expenses`, data);
+    return this.http.post<Expense>(`${this.base}/expenses`, data);
   }
 
   updateExpense(id: number, data: ExpenseRequest): Observable<Expense> {
-    return this.http.put<Expense>(`${this.BASE}/expenses/${id}`, data);
+    return this.http.put<Expense>(`${this.base}/expenses/${id}`, data);
   }
 
   deleteExpense(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.BASE}/expenses/${id}`);
+    return this.http.delete<void>(`${this.base}/expenses/${id}`);
   }
 
-  getCategories(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.BASE}/expenses/categories`);
+  getCategories(): Observable<ExpenseCategory[]> {
+    return this.http.get<ExpenseCategory[]>(`${this.base}/expenses/categories`);
   }
 
   // ── Budgets ───────────────────────────────────────────────────────────────
 
   getBudgets(): Observable<Budget[]> {
-    return this.http.get<Budget[]>(`${this.BASE}/budgets`);
+    return this.http.get<Budget[]>(`${this.base}/budgets`);
   }
 
   getBudgetsByMonth(year: number, month: number): Observable<Budget[]> {
-    return this.http.get<Budget[]>(`${this.BASE}/budgets/month`, {
-      params: new HttpParams().set('year', year).set('month', month),
-    });
+    const params = new HttpParams().set('year', year).set('month', month);
+    return this.http.get<Budget[]>(`${this.base}/budgets/month`, { params });
   }
 
-  createBudget(data: any): Observable<Budget> {
-    return this.http.post<Budget>(`${this.BASE}/budgets`, data);
+  createBudget(data: BudgetRequest): Observable<Budget> {
+    return this.http.post<Budget>(`${this.base}/budgets`, data);
   }
 
-  updateBudget(id: number, data: any): Observable<Budget> {
-    return this.http.put<Budget>(`${this.BASE}/budgets/${id}`, data);
+  updateBudget(id: number, data: BudgetRequest): Observable<Budget> {
+    return this.http.put<Budget>(`${this.base}/budgets/${id}`, data);
   }
 
   deleteBudget(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.BASE}/budgets/${id}`);
+    return this.http.delete<void>(`${this.base}/budgets/${id}`);
   }
 
   // ── Savings Goals ─────────────────────────────────────────────────────────
 
   getSavingsGoals(): Observable<SavingsGoal[]> {
-    return this.http.get<SavingsGoal[]>(`${this.BASE}/savings-goals`);
+    return this.http.get<SavingsGoal[]>(`${this.base}/savings-goals`);
   }
 
-  createSavingsGoal(data: any): Observable<SavingsGoal> {
-    return this.http.post<SavingsGoal>(`${this.BASE}/savings-goals`, data);
+  createSavingsGoal(data: SavingsGoalRequest): Observable<SavingsGoal> {
+    return this.http.post<SavingsGoal>(`${this.base}/savings-goals`, data);
   }
 
-  updateSavingsGoal(id: number, data: any): Observable<SavingsGoal> {
-    return this.http.put<SavingsGoal>(`${this.BASE}/savings-goals/${id}`, data);
+  updateSavingsGoal(
+    id: number,
+    data: SavingsGoalRequest,
+  ): Observable<SavingsGoal> {
+    return this.http.put<SavingsGoal>(`${this.base}/savings-goals/${id}`, data);
   }
 
   deleteSavingsGoal(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.BASE}/savings-goals/${id}`);
+    return this.http.delete<void>(`${this.base}/savings-goals/${id}`);
   }
 
   // ── Notifications ─────────────────────────────────────────────────────────
 
   getNotifications(): Observable<Notification[]> {
-    return this.http.get<Notification[]>(`${this.BASE}/notifications`);
+    return this.http.get<Notification[]>(`${this.base}/notifications`);
   }
 
   getUnreadCount(): Observable<{ count: number }> {
     return this.http.get<{ count: number }>(
-      `${this.BASE}/notifications/unread/count`,
+      `${this.base}/notifications/unread/count`,
     );
   }
 
   markAsRead(id: number): Observable<void> {
-    return this.http.patch<void>(`${this.BASE}/notifications/${id}/read`, {});
+    return this.http.patch<void>(`${this.base}/notifications/${id}/read`, {});
   }
 
   markAllAsRead(): Observable<void> {
-    return this.http.patch<void>(`${this.BASE}/notifications/read-all`, {});
+    return this.http.patch<void>(`${this.base}/notifications/read-all`, {});
+  }
+
+  deleteNotification(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.base}/notifications/${id}`);
   }
 
   // ── Analytics ─────────────────────────────────────────────────────────────
 
-  getAnalytics(year?: number, month?: number): Observable<AnalyticsData> {
-    if (year && month) {
-      return this.http.get<AnalyticsData>(`${this.BASE}/analytics/month`, {
-        params: new HttpParams().set('year', year).set('month', month),
-      });
-    }
-    return this.http.get<AnalyticsData>(`${this.BASE}/analytics`);
+  getAnalytics(): Observable<AnalyticsData> {
+    return this.http.get<AnalyticsData>(`${this.base}/analytics`);
+  }
+
+  getAnalyticsByMonth(year: number, month: number): Observable<AnalyticsData> {
+    const params = new HttpParams().set('year', year).set('month', month);
+    return this.http.get<AnalyticsData>(`${this.base}/analytics/month`, {
+      params,
+    });
+  }
+
+  getRecommendations(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.base}/analytics/recommendations`);
   }
 
   // ── Files ─────────────────────────────────────────────────────────────────
@@ -148,20 +166,26 @@ export class ApiService {
   ): Observable<FileAttachment> {
     const formData = new FormData();
     formData.append('file', file);
-    if (expenseId) formData.append('expenseId', expenseId.toString());
+    if (expenseId) formData.append('expenseId', String(expenseId));
     if (description) formData.append('description', description);
     return this.http.post<FileAttachment>(
-      `${this.BASE}/files/upload`,
+      `${this.base}/files/upload`,
       formData,
     );
   }
 
   getFiles(): Observable<FileAttachment[]> {
-    return this.http.get<FileAttachment[]>(`${this.BASE}/files`);
+    return this.http.get<FileAttachment[]>(`${this.base}/files`);
+  }
+
+  getFilesByExpense(expenseId: number): Observable<FileAttachment[]> {
+    return this.http.get<FileAttachment[]>(
+      `${this.base}/files/expense/${expenseId}`,
+    );
   }
 
   deleteFile(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.BASE}/files/${id}`);
+    return this.http.delete<void>(`${this.base}/files/${id}`);
   }
 
   // ── OCR ───────────────────────────────────────────────────────────────────
@@ -172,18 +196,18 @@ export class ApiService {
     categoryId?: number,
   ): Observable<OcrResult> {
     const formData = new FormData();
-    formData.append('file', file);
-    formData.append('autoCreate', autoCreate.toString());
-    if (categoryId) formData.append('categoryId', categoryId.toString());
-    return this.http.post<OcrResult>(`${this.BASE}/ocr/scan`, formData);
+    formData.append('file', file, file.name);
+    formData.append('autoCreate', String(autoCreate));
+    if (categoryId) formData.append('categoryId', String(categoryId));
+    return this.http.post<OcrResult>(`${this.base}/ocr/scan`, formData);
   }
 
-  confirmOcrExpense(
+  confirmOcr(
     ocrResult: OcrResult,
     categoryId?: number,
     fileId?: number,
   ): Observable<Expense> {
-    return this.http.post<Expense>(`${this.BASE}/ocr/confirm`, {
+    return this.http.post<Expense>(`${this.base}/ocr/confirm`, {
       ocrResult,
       categoryId,
       fileId,

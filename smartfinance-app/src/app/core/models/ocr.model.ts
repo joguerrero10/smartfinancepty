@@ -1,4 +1,4 @@
-import { SeverityLevel } from './Analytics.model';
+import { SeverityLevel } from './analytics.model';
 
 export interface OcrResult {
   rawText: string;

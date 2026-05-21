@@ -13,3 +13,10 @@ export interface Budget {
   year: number;
   month: number;
 }
+
+export interface BudgetRequest {
+  categoryId?: number;
+  limitAmount: number;
+  year: number;
+  month: number;
+}

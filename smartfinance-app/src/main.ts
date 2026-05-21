@@ -12,7 +12,7 @@ import {
 } from '@ionic/angular/standalone';
 import { AppComponent } from './app/app.component';
 import { routes } from './app/app.routes';
-import { Auth } from './app/core/services/Auth.service';
+import { Auth } from './app/core/services/auth.service';
 
 bootstrapApplication(AppComponent, {
   providers: [
